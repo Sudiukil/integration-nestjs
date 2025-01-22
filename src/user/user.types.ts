@@ -31,10 +31,16 @@ export class User implements IUser {
 @ArgsType()
 export class AddUser implements IAddUser {
   @MaxLength(50)
+  // Exo 3: on utilise l'annotation IsNotEmpty pour valider la présence du nom
+  @IsNotEmpty({ message: `Le nom de l'utilisateur n'est pas défini` })
   @Field(() => String)
   name: string;
 
   @IsOptional()
+  // Exo 3: on utilise MaxDate avec la date actuelle, pour vérifier qu'elle n'est pas dans le futur
+  @MaxDate(new Date(), {
+    message: `La date de naissance ne peut pas être définie dans le futur`,
+  })
   @Field(() => Date, { nullable: true })
   birthdate?: Date;
 }
