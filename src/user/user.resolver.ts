@@ -38,7 +38,8 @@ export class UserResolver {
     return this._service.deactivate(userId);
   }
 
-  @ResolveField(() => UserEmail, { name: 'emails' })
+  // Exo 1: le type était à UserEmail au lieu de UserEmail[]
+  @ResolveField(() => [UserEmail], { name: 'emails' })
   async getEmails(
     @Parent() user: User,
     @Args() filters: EmailFiltersArgs,
