@@ -50,17 +50,10 @@ export class UserResolver {
 
     if (filters.address) {
       // Exo 2: au lieu que In écrase Equal, on fusionne les deux filtres en une seule liste
-      const addresses: string[] = [];
-
-      if (filters.address.equal) {
-        // Exo 2: ajout du filtre "equal" (si présent)
-        addresses.push(filters.address.equal);
-      }
-
-      if (filters.address.in?.length > 0) {
-        // Ajout du filtre "in" (si présent)
-        addresses.push(...filters.address.in);
-      }
+      const addresses = [
+        ...(filters.address.equal ? [filters.address.equal] : []),
+        ...(filters.address.in ? filters.address.in : []),
+      ];
 
       // Exo 2: on applique le filtre sur les adresses
       if (addresses.length > 0) {
