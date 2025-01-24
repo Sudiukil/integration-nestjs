@@ -7,7 +7,12 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { AddEmail, EmailFiltersArgs, UserEmail } from './email.types';
+import {
+  AddEmail,
+  EmailFiltersArgs,
+  RemoveEmail,
+  UserEmail,
+} from './email.types';
 import { User } from '../user/user.types';
 import { EmailService } from './email.service';
 import { UserService } from '../user/user.service';
@@ -43,5 +48,11 @@ export class EmailResolver {
   @Mutation(() => ID)
   addEmail(@Args('email') email: AddEmail): Promise<EmailId> {
     return this._service.addEmail(email);
+  }
+
+  // Exo 5: mutation pour supprimer un mail
+  @Mutation(() => ID)
+  removeEmail(@Args('email') email: RemoveEmail): Promise<EmailId> {
+    return this._service.removeEmail(email);
   }
 }

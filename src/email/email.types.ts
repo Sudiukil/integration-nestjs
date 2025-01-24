@@ -1,7 +1,12 @@
 import { ArgsType, Field, ID, InputType, ObjectType } from '@nestjs/graphql';
-import { IsEmail, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 import { Maybe } from 'graphql/jsutils/Maybe';
-import { IAddEmail, IEmail, IEmailFilters } from './email.interfaces';
+import {
+  IAddEmail,
+  IEmail,
+  IEmailFilters,
+  IRemoveEmail,
+} from './email.interfaces';
 
 @ObjectType()
 export class UserEmail implements IEmail {
@@ -43,4 +48,16 @@ export class AddEmail implements IAddEmail {
 
   @Field(() => ID)
   userId: string;
+}
+
+// Exo 5: on ajoute un type d'entrée pour supprimer un e-mail
+@InputType()
+@ArgsType()
+export class RemoveEmail implements IRemoveEmail {
+  @IsUUID('all', {
+    message: `L'identifiant de l'e-mail doit être un UUID`,
+  })
+  @IsNotEmpty({ message: `L'identifiant de l'e-mail doit être défini` })
+  @Field(() => ID)
+  id: string;
 }

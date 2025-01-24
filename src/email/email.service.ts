@@ -2,9 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmailEntity } from './email.entity';
 import { Equal, FindOptionsWhere, In, Repository } from 'typeorm';
-import { EmailId, IAddEmail, IEmail } from './email.interfaces';
+import { EmailId, IAddEmail, IEmail, IRemoveEmail } from './email.interfaces';
 import { EmailFiltersArgs } from './email.types';
-import { IAddUser, IUser, UserId } from 'src/user/user.interfaces';
 import { UserService } from '../user/user.service';
 
 // Exo 4: implémentation du service pour les e-mails
@@ -64,5 +63,26 @@ export class EmailService {
     const emailId = addEmail.identifiers[0].id;
 
     return emailId;
+  }
+
+  // Exo 5: méthode pour supprimer un e-mail
+  async removeEmail(email: IRemoveEmail) {
+    const emailExists = await this.get(email.id);
+
+    if (!emailExists) {
+      throw new NotFoundException(`L'e-mail n'a pas été trouvé`);
+    }
+
+    const userExists = await this._userService.get(emailExists.userId);
+
+    if (!userExists || userExists.status === 'inactive') {
+      throw new NotFoundException(
+        `L'utilisateur n'a pas été trouvé ou est désactivé`,
+      );
+    }
+
+    this.emailRepository.delete(email);
+
+    return email.id;
   }
 }

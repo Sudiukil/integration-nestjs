@@ -11,3 +11,5 @@ export type IEmailFilters = {
 export type EmailId = IEmail['id'];
 
 export type IAddEmail = Omit<IEmail, 'id'>;
+
+export type IRemoveEmail = Pick<IEmail, 'id'>;
