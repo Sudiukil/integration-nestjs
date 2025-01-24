@@ -7,10 +7,11 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { EmailFiltersArgs, UserEmail } from './email.types';
+import { AddEmail, EmailFiltersArgs, UserEmail } from './email.types';
 import { User } from '../user/user.types';
 import { EmailService } from './email.service';
 import { UserService } from '../user/user.service';
+import { EmailId } from './email.interfaces';
 
 @Resolver(() => UserEmail)
 export class EmailResolver {
@@ -36,5 +37,11 @@ export class EmailResolver {
   async getUser(@Parent() parent: UserEmail): Promise<User> {
     // Exo 4: on utilise l'objet parent pour récupérer l'utilisateur associé à l'e-mail
     return this._userService.get(parent.userId);
+  }
+
+  // Exo 5: mutation pour ajouter un mail à un utilisateur
+  @Mutation(() => ID)
+  addEmail(@Args('email') email: AddEmail): Promise<EmailId> {
+    return this._service.addEmail(email);
   }
 }
