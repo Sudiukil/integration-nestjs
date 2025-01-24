@@ -18,10 +18,14 @@ export class EmailService {
     return this.emailRepository.findOneBy({ id: Equal(id) });
   }
 
-  // Exo 4: Méthode pour récupérer une liste d'e-mails correspondants à des filtres (comme sur l'Exo 2)
-  // TODO: refacto pour mettre en commun avec l'user resolver
-  getEmails(filters: EmailFiltersArgs): Promise<IEmail[]> {
+  // Exo 4: Méthode pour récupérer une liste d'e-mails correspondants à des filtres
+  // (déplacement de la logique de l'exo 2)
+  getEmails(filters: EmailFiltersArgs, userId?: string): Promise<IEmail[]> {
     const where: FindOptionsWhere<EmailEntity> = {};
+
+    if (userId) {
+      where.userId = Equal(userId);
+    }
 
     if (filters.address) {
       const addresses = [
@@ -34,6 +38,9 @@ export class EmailService {
       }
     }
 
-    return this.emailRepository.find({ where });
+    return this.emailRepository.find({
+      where,
+      order: { address: 'asc' },
+    });
   }
 }

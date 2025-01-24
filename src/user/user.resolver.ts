@@ -14,13 +14,13 @@ import { EmailEntity } from '../email/email.entity';
 import { UserId } from './user.interfaces';
 import { UserService } from './user.service';
 import { AddUser, User, UserIdArgs } from './user.types';
+import { EmailService } from '../email/email.service';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(
     private readonly _service: UserService,
-    @InjectRepository(EmailEntity)
-    private readonly emailRepository: Repository<EmailEntity>,
+    private readonly _emailService: EmailService,
   ) {}
 
   @Query(() => User, { name: 'user', nullable: true })
@@ -39,31 +39,12 @@ export class UserResolver {
   }
 
   // Exo 1: le type était à UserEmail au lieu de UserEmail[]
+  // Exo 4: déplacement de la logique dans EmailService
   @ResolveField(() => [UserEmail], { name: 'emails' })
   async getEmails(
     @Parent() user: User,
     @Args() filters: EmailFiltersArgs,
   ): Promise<UserEmail[]> {
-    const where: FindOptionsWhere<EmailEntity> = {
-      userId: Equal(user.id),
-    };
-
-    if (filters.address) {
-      // Exo 2: au lieu que In écrase Equal, on fusionne les deux filtres en une seule liste
-      const addresses = [
-        ...(filters.address.equal ? [filters.address.equal] : []),
-        ...(filters.address.in ? filters.address.in : []),
-      ];
-
-      // Exo 2: on applique le filtre sur les adresses
-      if (addresses.length > 0) {
-        where.address = In(addresses);
-      }
-    }
-
-    return this.emailRepository.find({
-      where,
-      order: { address: 'asc' },
-    });
+    return this._emailService.getEmails(filters, user.id);
   }
 }
