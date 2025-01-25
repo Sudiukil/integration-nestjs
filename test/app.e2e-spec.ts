@@ -263,5 +263,90 @@ describe('Tests e2e', () => {
           });
       });
     });
+
+    describe('[Mutation] addEmail', () => {
+      it(`[13] Devrait ajouter un email à un utilisateur`, () => {
+        const newEmail = {
+          userId: knownUserId,
+          address: 'foo@bar.com',
+        };
+
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {addEmail(email:{userId:"${newEmail.userId}", address:"${newEmail.address}"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.data.addEmail).toBeDefined();
+          });
+      });
+
+      it(`[14] Devrait retourner une erreur de validation si l'email n'as pas le bon format`, () => {
+        const badEmail = {
+          userId: knownUserId,
+          address: 'pasunmail',
+        };
+
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {addEmail(email:{userId:"${badEmail.userId}", address:"${badEmail.address}"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(
+              res.body.errors?.[0]?.extensions?.originalError?.message,
+            ).toContain('address must be an email');
+          });
+      });
+
+      it(`[15] Devrait retourner une erreur de validation si l'utilisateur n'existe pas/est désactivé`, () => {
+        const badEmail = {
+          userId: '77777777-7777-7777-7777-777777777777',
+          address: 'foo@bar.com',
+        };
+
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {addEmail(email:{userId:"${badEmail.userId}", address:"${badEmail.address}"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(
+              res.body.errors?.[0]?.extensions?.originalError?.message,
+            ).toContain("L'utilisateur n'a pas été trouvé ou est désactivé");
+          });
+      });
+    });
+
+    describe('[Mutation] removeEmail', () => {
+      it(`[16] Devrait supprimer un email`, () => {
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {removeEmail(email:{id:"${email1.id}"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.data.removeEmail).toBeDefined();
+          });
+      });
+
+      it(`[17] Devrait retourner une erreur de validation si l'email n'existe pas`, () => {
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {removeEmail(email:{id:"77777777-7777-7777-7777-777777777777"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(
+              res.body.errors?.[0]?.extensions?.originalError?.message,
+            ).toContain("L'e-mail n'a pas été trouvé");
+          });
+      });
+    });
   });
 });
